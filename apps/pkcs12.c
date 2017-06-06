@@ -546,10 +546,10 @@ int pkcs12_main(int argc, char **argv)
              */
             unsigned char *utmp;
             int utmplen;
-            utmp = OPENSSL_asc2uni(mpass, -1, NULL, &utmplen);
+            utmp = OPENSSL_latin1_to_bmp(mpass, -1, NULL, &utmplen);
             if (utmp == NULL)
                 goto end;
-            badpass = OPENSSL_uni2utf8(utmp, utmplen);
+            badpass = OPENSSL_bmp_to_utf8(utmp, utmplen);
             OPENSSL_free(utmp);
             if (!PKCS12_verify_mac(p12, badpass, -1)) {
                 BIO_printf(bio_err, "Mac verify error: invalid password?\n");
@@ -881,8 +881,10 @@ int print_attribs(BIO *out, const STACK_OF(X509_ATTRIBUTE) *attrlst,
             av = X509_ATTRIBUTE_get0_type(attr, 0);
             switch (av->type) {
             case V_ASN1_BMPSTRING:
-                value = OPENSSL_uni2asc(av->value.bmpstring->data,
-                                        av->value.bmpstring->length);
+		/* FIXME: Why do we output ISO8859-1 to a terminal when
+		 * we have no idea if that's the expected charset? */
+                value = OPENSSL_bmp_to_latin1(av->value.bmpstring->data,
+					      av->value.bmpstring->length);
                 BIO_printf(out, "%s\n", value);
                 OPENSSL_free(value);
                 break;
