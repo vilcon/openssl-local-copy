@@ -98,6 +98,7 @@ static int compare_with_file(const char *alg, int type, BIO *membio)
     if (!TEST_ptr(fullfile))
         goto err;
 
+    fprintf(stderr, "\nReading reference key data from file %s\n", fullfile);
     file = BIO_new_file(fullfile, "rb");
     if (!TEST_ptr(file))
         goto err;
