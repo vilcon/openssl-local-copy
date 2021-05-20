@@ -278,7 +278,7 @@ static void warn_binary(const char *file)
     unsigned char linebuf[1024], *cur, *end;
     int len;
 
-    if ((bio = bio_open_default(file, 'r', FORMAT_BINARY)) == NULL)
+    if ((bio = app_bio_open_default(file, 'r', FORMAT_BINARY)) == NULL)
         return; /* cannot give a proper warning since there is an error */
     while ((len = BIO_read(bio, linebuf, sizeof(linebuf))) > 0) {
         end = linebuf + len;
@@ -900,8 +900,8 @@ int cms_main(int argc, char **argv)
 
     if ((flags & CMS_BINARY) == 0)
         warn_binary(infile);
-    in = bio_open_default(infile, 'r',
-                          (flags & CMS_BINARY) != 0 ? FORMAT_BINARY : informat);
+    in = app_bio_open_default(infile, 'r',
+                              (flags & CMS_BINARY) != 0 ? FORMAT_BINARY : informat);
     if (in == NULL)
         goto end;
 
@@ -944,7 +944,7 @@ int cms_main(int argc, char **argv)
             goto end;
     }
 
-    out = bio_open_default(outfile, 'w', outformat);
+    out = app_bio_open_default(outfile, 'w', outformat);
     if (out == NULL)
         goto end;
 

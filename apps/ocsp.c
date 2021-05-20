@@ -555,7 +555,7 @@ int ocsp_main(int argc, char **argv)
         && respin == NULL && !(port != NULL && ridx_filename != NULL))
         goto opthelp;
 
-    out = bio_open_default(outfile, 'w', FORMAT_TEXT);
+    out = app_bio_open_default(outfile, 'w', FORMAT_TEXT);
     if (out == NULL)
         goto end;
 
@@ -563,7 +563,7 @@ int ocsp_main(int argc, char **argv)
         add_nonce = 0;
 
     if (req == NULL && reqin != NULL) {
-        derbio = bio_open_default(reqin, 'r', FORMAT_ASN1);
+        derbio = app_bio_open_default(reqin, 'r', FORMAT_ASN1);
         if (derbio == NULL)
             goto end;
         req = d2i_OCSP_REQUEST_bio(derbio, NULL);
@@ -710,7 +710,7 @@ redo_accept:
         OCSP_REQUEST_print(out, req, 0);
 
     if (reqout != NULL) {
-        derbio = bio_open_default(reqout, 'w', FORMAT_ASN1);
+        derbio = app_bio_open_default(reqout, 'w', FORMAT_ASN1);
         if (derbio == NULL)
             goto end;
         i2d_OCSP_REQUEST_bio(derbio, req);
@@ -735,7 +735,7 @@ redo_accept:
         goto end;
 #endif
     } else if (respin != NULL) {
-        derbio = bio_open_default(respin, 'r', FORMAT_ASN1);
+        derbio = app_bio_open_default(respin, 'r', FORMAT_ASN1);
         if (derbio == NULL)
             goto end;
         resp = d2i_OCSP_RESPONSE_bio(derbio, NULL);
@@ -752,7 +752,7 @@ redo_accept:
  done_resp:
 
     if (respout != NULL) {
-        derbio = bio_open_default(respout, 'w', FORMAT_ASN1);
+        derbio = app_bio_open_default(respout, 'w', FORMAT_ASN1);
         if (derbio == NULL)
             goto end;
         i2d_OCSP_RESPONSE_bio(derbio, resp);

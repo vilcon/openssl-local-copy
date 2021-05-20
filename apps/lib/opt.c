@@ -26,6 +26,8 @@
 #include <openssl/bio.h>
 #include <openssl/x509v3.h>
 
+#include "app_bio.h"
+
 #define MAX_OPT_HELP_WIDTH 30
 const char OPT_HELP_STR[] = "-H";
 const char OPT_MORE_STR[] = "-M";
