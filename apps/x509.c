@@ -684,12 +684,9 @@ int x509_main(int argc, char **argv)
             }
         }
         X509V3_set_ctx_test(&ctx2);
-        X509V3_set_nconf(&ctx2, extconf);
-        if (!X509V3_EXT_add_nconf(extconf, &ctx2, extsect, NULL)) {
-            BIO_printf(bio_err,
-                       "Error checking extension section %s\n", extsect);
+        if (!do_EXT_add_nconf(extconf, &ctx2, extsect, NULL,
+                              "Error checking extension section %s\n"))
             goto err;
-        }
     }
 
     if (reqfile) {
@@ -837,12 +834,9 @@ int x509_main(int argc, char **argv)
             goto end;
     }
     if (extconf != NULL && !x509toreq) {
-        X509V3_set_nconf(&ext_ctx, extconf);
-        if (!X509V3_EXT_add_nconf(extconf, &ext_ctx, extsect, x)) {
-            BIO_printf(bio_err,
-                       "Error adding extensions from section %s\n", extsect);
+        if (!do_EXT_add_nconf(extconf, &ext_ctx, extsect, x,
+                              "Error adding extensions from section %s\n"))
             goto err;
-        }
     }
 
     /* At this point the contents of the certificate x have been finished. */
