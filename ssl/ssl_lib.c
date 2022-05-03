@@ -2821,7 +2821,7 @@ char *SSL_get_shared_ciphers(const SSL *s, char *buf, int size)
  * 
  * Note that only the host_name type is defined (RFC 3546).
  */
-const char *SSL_get_servername(const SSL *s, const int type)
+const char *SSL_get_servername(const SSL *s, int type)
 {
     /*
      * If we don't know if we are the client or the server yet then we assume

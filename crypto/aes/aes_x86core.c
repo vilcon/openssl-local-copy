@@ -472,8 +472,7 @@ static const u32 rcon[] = {
 /**
  * Expand the cipher key into the encryption key schedule.
  */
-int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
-                        AES_KEY *key)
+int AES_set_encrypt_key(const unsigned char *userKey, int bits, AES_KEY *key)
 {
 
     u32 *rk;
@@ -574,8 +573,7 @@ int AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 /**
  * Expand the cipher key into the decryption key schedule.
  */
-int AES_set_decrypt_key(const unsigned char *userKey, const int bits,
-                        AES_KEY *key)
+int AES_set_decrypt_key(const unsigned char *userKey, int bits, AES_KEY *key)
 {
 
     u32 *rk;
