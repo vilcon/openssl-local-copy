@@ -329,14 +329,17 @@ static long file_ctrl(BIO *b, int cmd, long num, void *ptr)
             ret = 0;
         }
         break;
+    case BIO_CTRL_PENDING:
+    case BIO_CTRL_WPENDING:
+        ret = 0L;
+        break;
     case BIO_CTRL_PUSH:
     case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
         break;
 
-    case BIO_CTRL_WPENDING:
-    case BIO_CTRL_PENDING:
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }
