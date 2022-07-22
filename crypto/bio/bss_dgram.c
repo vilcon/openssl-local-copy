@@ -390,7 +390,7 @@ static long dgram_get_mtu_overhead(bio_dgram_data *data)
 
 static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret = 1;
+    long ret = 1; /* default result: true */
     int *ip;
     bio_dgram_data *data = NULL;
     int sockopt_val = 0;
@@ -410,7 +410,7 @@ static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
         ret = 0;
         break;
     case BIO_CTRL_INFO:
-        ret = 0;
+        ret = 0L;
         break;
     case BIO_C_SET_FD:
         dgram_clear(b);
@@ -435,11 +435,10 @@ static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
         break;
     case BIO_CTRL_PENDING:
     case BIO_CTRL_WPENDING:
-        ret = 0;
+        ret = 0L;
         break;
     case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
-        ret = 1;
         break;
     case BIO_CTRL_DGRAM_CONNECT:
         BIO_ADDR_make(&data->peer, BIO_ADDR_sockaddr((BIO_ADDR *)ptr));
@@ -624,7 +623,7 @@ static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
                 ret = -1;
             } else {
                 OPENSSL_assert(sz <= sizeof(struct timeval));
-                ret = (int)sz;
+                ret = (long)sz;
             }
 #  endif
         }
@@ -675,7 +674,7 @@ static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
                 ret = -1;
             } else {
                 OPENSSL_assert(sz <= sizeof(struct timeval));
-                ret = (int)sz;
+                ret = (long)sz;
             }
 #  endif
         }
@@ -690,7 +689,6 @@ static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
         d_errno = (data->_errno == EAGAIN);
 # endif
         if (d_errno) {
-            ret = 1;
             data->_errno = 0;
         } else
             ret = 0;
@@ -698,7 +696,6 @@ static long dgram_ctrl(BIO *b, int cmd, long num, void *ptr)
 # ifdef EMSGSIZE
     case BIO_CTRL_DGRAM_MTU_EXCEEDED:
         if (data->_errno == EMSGSIZE) {
-            ret = 1;
             data->_errno = 0;
         } else
             ret = 0;

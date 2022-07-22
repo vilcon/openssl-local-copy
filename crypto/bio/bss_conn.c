@@ -399,7 +399,7 @@ static long conn_ctrl(BIO *b, int cmd, long num, void *ptr)
     BIO *dbio;
     int *ip;
     const char **pptr = NULL;
-    long ret = 1;
+    long ret = 1; /* default result: true */
     BIO_CONNECT *data;
 # ifndef OPENSSL_NO_KTLS
     ktls_crypto_info_t *crypto_info;
@@ -420,8 +420,6 @@ static long conn_ctrl(BIO *b, int cmd, long num, void *ptr)
         /* use this one to start the connection */
         if (data->state != BIO_CONN_S_OK)
             ret = (long)conn_state(b, data);
-        else
-            ret = 1;
         break;
     case BIO_C_GET_CONNECT:
         if (ptr != NULL) {
@@ -546,7 +544,7 @@ static long conn_ctrl(BIO *b, int cmd, long num, void *ptr)
         break;
     case BIO_CTRL_PENDING:
     case BIO_CTRL_WPENDING:
-        ret = 0;
+        ret = 0L;
         break;
     case BIO_CTRL_FLUSH:
         break;
@@ -594,11 +592,11 @@ static long conn_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_SET_KTLS_TX_SEND_CTRL_MSG:
         BIO_set_ktls_ctrl_msg_flag(b);
         data->record_type = num;
-        ret = 0;
+        ret = 0L;
         break;
     case BIO_CTRL_CLEAR_KTLS_TX_CTRL_MSG:
         BIO_clear_ktls_ctrl_msg_flag(b);
-        ret = 0;
+        ret = 0L;
         break;
 # endif
     default:

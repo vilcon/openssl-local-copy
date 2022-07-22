@@ -177,7 +177,7 @@ static int file_write(BIO *b, const char *in, int inl)
 
 static long file_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret = 1;
+    long ret = 1; /* default result: true */
     FILE *fp = (FILE *)b->ptr;
     FILE **fpp;
     char p[4];
@@ -330,7 +330,6 @@ static long file_ctrl(BIO *b, int cmd, long num, void *ptr)
         }
         break;
     case BIO_CTRL_DUP:
-        ret = 1;
         break;
 
     case BIO_CTRL_WPENDING:

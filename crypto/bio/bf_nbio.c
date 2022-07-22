@@ -149,7 +149,7 @@ static int nbiof_write(BIO *b, const char *in, int inl)
 
 static long nbiof_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret;
+    long ret = 1; /* default result: true */
 
     if (b->next_bio == NULL)
         return 0;
