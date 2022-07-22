@@ -324,6 +324,8 @@ static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_DGRAM_GET_MTU_OVERHEAD:
     case BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT:
     case BIO_CTRL_WPENDING:
+    case BIO_CTRL_GET_KTLS_SEND:
+    case BIO_CTRL_GET_KTLS_RECV:
         ret = 0L;
         break;
     case BIO_CTRL_PENDING:
@@ -333,6 +335,7 @@ static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
+    case BIO_C_SET_NBIO:
         break;
 
     default:

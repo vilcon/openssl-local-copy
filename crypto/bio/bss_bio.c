@@ -580,6 +580,11 @@ static long bio_ctrl(BIO *bio, int cmd, long num, void *ptr)
         }
         break;
 
+    case BIO_CTRL_GET_KTLS_SEND:
+    case BIO_CTRL_GET_KTLS_RECV:
+        ret = 0L;
+        break;
+
     default:
         ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
