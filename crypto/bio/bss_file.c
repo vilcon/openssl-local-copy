@@ -333,6 +333,7 @@ static long file_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_WPENDING:
         ret = 0L;
         break;
+    case BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT:
     case BIO_CTRL_PUSH:
     case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
