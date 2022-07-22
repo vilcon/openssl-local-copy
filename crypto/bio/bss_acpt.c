@@ -532,6 +532,9 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_WPENDING:
         ret = 0L;
         break;
+    case BIO_CTRL_PUSH:
+    case BIO_CTRL_POP:
+    case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
         break;
     case BIO_C_SET_BIND_MODE:
@@ -539,8 +542,6 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
         break;
     case BIO_C_GET_BIND_MODE:
         ret = (long)data->bind_mode;
-        break;
-    case BIO_CTRL_DUP:
         break;
     case BIO_CTRL_EOF:
         if (b->next_bio == NULL)
