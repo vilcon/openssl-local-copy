@@ -566,7 +566,6 @@ static long bio_ctrl(BIO *bio, int cmd, long num, void *ptr)
 
         break;
 
-    case BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT:
     case BIO_CTRL_FLUSH:
     case BIO_CTRL_PUSH:
     case BIO_CTRL_POP:
