@@ -49,23 +49,28 @@ static int null_write(BIO *b, const char *in, int inl)
 
 static long null_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret = 1;
+    long ret = 1; /* default result: true */
 
     switch (cmd) {
     case BIO_CTRL_RESET:
     case BIO_CTRL_EOF:
     case BIO_CTRL_SET:
     case BIO_CTRL_SET_CLOSE:
-    case BIO_CTRL_FLUSH:
+    case BIO_CTRL_PUSH:
+    case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
-        ret = 1;
+    case BIO_CTRL_FLUSH:
         break;
     case BIO_CTRL_GET_CLOSE:
     case BIO_CTRL_INFO:
     case BIO_CTRL_GET:
     case BIO_CTRL_PENDING:
     case BIO_CTRL_WPENDING:
+        ret = 0L;
+        break;
+
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }

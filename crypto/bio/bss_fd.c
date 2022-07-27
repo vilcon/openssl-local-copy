@@ -143,7 +143,7 @@ static int fd_write(BIO *b, const char *in, int inl)
 
 static long fd_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret = 1;
+    long ret = 1; /* default result: true */
     int *ip;
 
     switch (cmd) {
@@ -180,16 +180,19 @@ static long fd_ctrl(BIO *b, int cmd, long num, void *ptr)
         break;
     case BIO_CTRL_PENDING:
     case BIO_CTRL_WPENDING:
-        ret = 0;
+        ret = 0L;
         break;
+    case BIO_CTRL_PUSH:
+    case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
-        ret = 1;
         break;
     case BIO_CTRL_EOF:
         ret = (b->flags & BIO_FLAGS_IN_EOF) != 0;
         break;
+
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }

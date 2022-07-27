@@ -236,7 +236,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
     BIO *dbio;
     BIO_F_BUFFER_CTX *ctx;
-    long ret = 1;
+    long ret = 1; /* default result: true */
     char *p1, *p2;
     int r, i, *ip;
     int ibs, obs;
@@ -262,7 +262,7 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
         ret = (long)ctx->obuf_len;
         break;
     case BIO_C_GET_BUFF_NUM_LINES:
-        ret = 0;
+        ret = 0L;
         p1 = ctx->ibuf;
         for (i = 0; i < ctx->ibuf_len; i++) {
             if (p1[ctx->ibuf_off + i] == '\n')
@@ -298,7 +298,6 @@ static long buffer_ctrl(BIO *b, int cmd, long num, void *ptr)
         ctx->ibuf_off = 0;
         ctx->ibuf_len = (int)num;
         memcpy(ctx->ibuf, ptr, (int)num);
-        ret = 1;
         break;
     case BIO_C_SET_BUFF_SIZE:
         if (ptr != NULL) {

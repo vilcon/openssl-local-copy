@@ -281,8 +281,8 @@ void dtls1_start_timer(SSL *s)
         s->d1->next_timeout.tv_usec -= 1000000;
     }
 
-    BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0,
-             &(s->d1->next_timeout));
+    (void)BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0,
+                   &(s->d1->next_timeout));
 }
 
 struct timeval *dtls1_get_timeout(SSL *s, struct timeval *timeleft)
@@ -883,8 +883,8 @@ int dtls1_query_mtu(SSL *s)
             if (s->d1->mtu < dtls1_min_mtu(s)) {
                 /* Set to min mtu */
                 s->d1->mtu = dtls1_min_mtu(s);
-                BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SET_MTU,
-                         (long)s->d1->mtu, NULL);
+                (void)BIO_ctrl(SSL_get_wbio(s), BIO_CTRL_DGRAM_SET_MTU,
+                               (long)s->d1->mtu, NULL);
             }
         } else
             return 0;

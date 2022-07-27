@@ -402,8 +402,8 @@ static int acpt_write(BIO *b, const char *in, int inl)
 
 static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
+    long ret = 1; /* default result: true */
     int *ip;
-    long ret = 1;
     BIO_ACCEPT *data;
     char **pp;
 
@@ -521,6 +521,7 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
         } else
             ret = -1;
         break;
+
     case BIO_CTRL_GET_CLOSE:
         ret = b->shutdown;
         break;
@@ -529,8 +530,11 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
         break;
     case BIO_CTRL_PENDING:
     case BIO_CTRL_WPENDING:
-        ret = 0;
+        ret = 0L;
         break;
+    case BIO_CTRL_PUSH:
+    case BIO_CTRL_POP:
+    case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
         break;
     case BIO_C_SET_BIND_MODE:
@@ -539,15 +543,15 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_C_GET_BIND_MODE:
         ret = (long)data->bind_mode;
         break;
-    case BIO_CTRL_DUP:
-        break;
     case BIO_CTRL_EOF:
         if (b->next_bio == NULL)
             ret = 0;
         else
             ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
         break;
+
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }

@@ -175,7 +175,7 @@ static int sock_write(BIO *b, const char *in, int inl)
 
 static long sock_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret = 1;
+    long ret = 1; /* default result: true */
     int *ip;
     struct bss_sock_st *data = (struct bss_sock_st *)b->ptr;
 # ifndef OPENSSL_NO_KTLS
@@ -211,9 +211,10 @@ static long sock_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_SET_CLOSE:
         b->shutdown = (int)num;
         break;
+    case BIO_CTRL_PUSH:
+    case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
-        ret = 1;
         break;
 # ifndef OPENSSL_NO_KTLS
     case BIO_CTRL_SET_KTLS:
@@ -229,11 +230,11 @@ static long sock_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_SET_KTLS_TX_SEND_CTRL_MSG:
         BIO_set_ktls_ctrl_msg_flag(b);
         data->ktls_record_type = (unsigned char)num;
-        ret = 0;
+        ret = 0L;
         break;
     case BIO_CTRL_CLEAR_KTLS_TX_CTRL_MSG:
         BIO_clear_ktls_ctrl_msg_flag(b);
-        ret = 0;
+        ret = 0L;
         break;
 # endif
     case BIO_CTRL_EOF:
@@ -259,6 +260,7 @@ static long sock_ctrl(BIO *b, int cmd, long num, void *ptr)
         }
         break;
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }

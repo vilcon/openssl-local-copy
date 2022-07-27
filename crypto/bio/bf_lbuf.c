@@ -204,7 +204,7 @@ static long linebuffer_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
     BIO *dbio;
     BIO_LINEBUFFER_CTX *ctx;
-    long ret = 1;
+    long ret = 1; /* default result: true */
     char *p;
     int r;
     int obs;

@@ -241,7 +241,7 @@ static int mem_write(BIO *b, const char *in, int inl)
 
 static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
-    long ret = 1;
+    long ret = 1; /* default result: true */
     char **pptr;
     BIO_BUF_MEM *bbm = (BIO_BUF_MEM *)b->ptr;
     BUF_MEM *bm, *bo;            /* bio_mem, bio_other */
@@ -286,7 +286,7 @@ static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
         ret = off;
         break;
     case BIO_CTRL_EOF:
-        ret = (long)(bm->length == 0);
+        ret = bm->length == 0;
         break;
     case BIO_C_SET_BUF_MEM_EOF_RETURN:
         b->num = (int)num;
@@ -319,19 +319,27 @@ static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
     case BIO_CTRL_SET_CLOSE:
         b->shutdown = (int)num;
         break;
+    case BIO_CTRL_DGRAM_QUERY_MTU:
+    case BIO_CTRL_DGRAM_SET_MTU:
+    case BIO_CTRL_DGRAM_GET_MTU_OVERHEAD:
+    case BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT:
     case BIO_CTRL_WPENDING:
+    case BIO_CTRL_GET_KTLS_SEND:
+    case BIO_CTRL_GET_KTLS_RECV:
         ret = 0L;
         break;
     case BIO_CTRL_PENDING:
         ret = (long)bm->length;
         break;
-    case BIO_CTRL_DUP:
-    case BIO_CTRL_FLUSH:
-        ret = 1;
-        break;
     case BIO_CTRL_PUSH:
     case BIO_CTRL_POP:
+    case BIO_CTRL_DUP:
+    case BIO_CTRL_FLUSH:
+    case BIO_C_SET_NBIO:
+        break;
+
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }

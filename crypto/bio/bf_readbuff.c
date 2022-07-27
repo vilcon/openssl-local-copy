@@ -161,8 +161,9 @@ static int readbuffer_puts(BIO *b, const char *str)
 
 static long readbuffer_ctrl(BIO *b, int cmd, long num, void *ptr)
 {
+    long ret = 1; /* default result: true */
     BIO_F_BUFFER_CTX *ctx;
-    long ret = 1, sz;
+    long sz;
 
     ctx = (BIO_F_BUFFER_CTX *)b->ptr;
 
@@ -197,11 +198,14 @@ static long readbuffer_ctrl(BIO *b, int cmd, long num, void *ptr)
             ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
         }
         break;
+    case BIO_CTRL_PUSH:
+    case BIO_CTRL_POP:
     case BIO_CTRL_DUP:
     case BIO_CTRL_FLUSH:
-        ret = 1;
         break;
+
     default:
+        ERR_raise_data(ERR_LIB_BIO, ERR_R_UNSUPPORTED, "cmd=%d", cmd);
         ret = 0;
         break;
     }
