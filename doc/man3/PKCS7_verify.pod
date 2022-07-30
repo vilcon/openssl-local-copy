@@ -47,8 +47,11 @@ the B<certs> parameter (if it is not B<NULL>) and then looking in any certificat
 contained in the B<p7> structure itself. If any signer's certificates cannot be
 located the operation fails.
 
-Each signer's certificate is chain verified using the B<smimesign> purpose and
-the supplied trusted certificate store. Any internal certificates in the message
+Each signer's certificate is chain verified
+using the supplied trusted certificate store I<store>.
+The required purpose is I<smime_sign> unless a different one has been set in
+I<store> using L<X509_STORE_set_purpose(3)> and unless B<PKCS7_NOCHAIN> is set.
+Any internal certificates in the message
 are used as untrusted CAs. If any chain verify fails an error code is returned.
 
 Finally the signed content is read (and written to B<out> is it is not NULL) and
@@ -115,6 +118,7 @@ mentioned in PKCS7_sign() also applies to PKCS7_verify().
 
 =head1 SEE ALSO
 
+L<X509_STORE_set_purpose(3)>,
 L<ERR_get_error(3)>, L<PKCS7_sign(3)>
 
 =head1 COPYRIGHT

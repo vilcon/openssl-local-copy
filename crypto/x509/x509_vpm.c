@@ -525,7 +525,18 @@ static const X509_VERIFY_PARAM default_table[] = {
      NULL,                      /* policies */
      vpm_empty_id},
     {
-     "smime_sign",              /* S/MIME sign parameters */
+     "smime_encrypt",           /* S/MIME encryption parameters */
+     0,                         /* check time to use */
+     0,                         /* inheritance flags */
+     0,                         /* flags */
+     X509_PURPOSE_SMIME_ENCRYPT, /* purpose */
+     X509_TRUST_EMAIL,          /* trust */
+     -1,                        /* depth */
+     -1,                        /* auth_level */
+     NULL,                      /* policies */
+     vpm_empty_id},
+    {
+     "smime_sign",              /* S/MIME signature parameters */
      0,                         /* check time to use */
      0,                         /* inheritance flags */
      0,                         /* flags */

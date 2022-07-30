@@ -457,7 +457,7 @@ Set policy variable inhibit-policy-mapping (see RFC5280).
 
 The intended use for the certificate.
 Currently defined purposes are C<sslclient>, C<sslserver>, C<nssslserver>,
-C<smimesign>, C<smimeencrypt>, C<crlsign>, C<ocsphelper>, C<timestampsign>,
+C<smime_sign>, C<smime_encrypt>, C<crlsign>, C<ocsphelper>, C<timestampsign>,
 and C<any>.
 If peer certificate verification is enabled, by default the TLS implementation
 as well as the commands B<s_client> and B<s_server> check for consistency
@@ -497,7 +497,8 @@ The trust model determines which auxiliary trust or reject OIDs are applicable
 to verifying the given certificate chain.
 They can be given using the B<-addtrust> and B<-addreject> options
 for L<openssl-x509(1)>.
-Supported policy names include: B<default>, B<pkcs7>, B<smime_sign>,
+Supported policy names include: B<default>, B<pkcs7>,
+B<smime_sign>, B<smime_encrypt>,
 B<ssl_client>, B<ssl_server>.
 These mimics the combinations of purpose and trust settings used in SSL, CMS
 and S/MIME.
