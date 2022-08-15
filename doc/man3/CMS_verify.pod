@@ -59,8 +59,11 @@ the I<certs> parameter (if it is not NULL) and then looking in any
 certificates contained in the I<cms> structure itself. If any signing
 certificate cannot be located the operation fails.
 
-Each signing certificate is chain verified using the I<smimesign> purpose and
-the supplied trusted certificate store. Any internal certificates in the message
+Each signing certificate is chain verified
+using the supplied trusted certificate store I<store>.
+The required purpose is I<smime_sign> unless a different one
+has been set in I<store> using L<X509_STORE_set_purpose(3)>.
+Any internal certificates in the message
 are used as untrusted CAs. If CRL checking is enabled in I<store> any internal
 CRLs are used in addition to attempting to look them up in I<store>. If any
 chain verify fails an error code is returned.
@@ -144,6 +147,7 @@ be held in memory if it is not detached.
 
 =head1 SEE ALSO
 
+L<X509_STORE_set_purpose(3)>,
 L<OSSL_ESS_check_signing_certs(3)>,
 L<ERR_get_error(3)>, L<CMS_sign(3)>
 
