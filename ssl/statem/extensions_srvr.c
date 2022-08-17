@@ -812,7 +812,7 @@ int tls_parse_ctos_cookie(SSL_CONNECTION *s, PACKET *pkt, unsigned int context,
 
     /* We tolerate a cookie age of up to 10 minutes (= 60 * 10 seconds) */
     now = (unsigned long)time(NULL);
-    if (tm > now || (now - tm) > 600) {
+    if ((uint32_t)(now - tm) > 600) {
         /* Cookie is stale. Ignore it */
         return 1;
     }
