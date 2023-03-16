@@ -47,7 +47,7 @@ typedef struct {
 /*  Use of this function is deprecated. */
 void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
                      size_t length, const AES_KEY *key,
-                     unsigned char *ivec, const int enc)
+                     unsigned char *ivec, int enc)
 {
     size_t n;
     size_t len = length / AES_BLOCK_SIZE;
@@ -185,8 +185,7 @@ void AES_ige_encrypt(const unsigned char *in, unsigned char *out,
 
 void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
                         size_t length, const AES_KEY *key,
-                        const AES_KEY *key2, const unsigned char *ivec,
-                        const int enc)
+                        const AES_KEY *key2, const unsigned char *ivec, int enc)
 {
     size_t n;
     size_t len = length;
