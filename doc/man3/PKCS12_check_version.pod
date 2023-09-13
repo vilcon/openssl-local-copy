@@ -42,7 +42,7 @@ L<d2i_PKCS12(3)>,
 
 =head1 HISTORY
 
-PKCS12_check_version() was added in OpenSSL 3.2.
+PKCS12_check_version() was added in OpenSSL 3.3.
 
 =head1 COPYRIGHT
 
