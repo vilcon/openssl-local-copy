@@ -43,7 +43,7 @@ static void *evp_signature_from_algorithm(int name_id,
     const OSSL_DISPATCH *fns = algodef->implementation;
     EVP_SIGNATURE *signature = NULL;
     int ctxfncnt = 0, signfncnt = 0, verifyfncnt = 0, verifyrecfncnt = 0;
-    int digsignfncnt = 0, digverifyfncnt = 0;
+    int digsignfncnt = 0, digverifyfncnt = 0, digverifypqfncnt = 0;
     int gparamfncnt = 0, sparamfncnt = 0, gmdparamfncnt = 0, smdparamfncnt = 0;
 
     if ((signature = evp_signature_new(prov)) == NULL) {
@@ -127,6 +127,20 @@ static void *evp_signature_from_algorithm(int name_id,
                 break;
             signature->digest_sign
                 = OSSL_FUNC_signature_digest_sign(fns);
+            break;
+        case OSSL_FUNC_SIGNATURE_DIGEST_VERIFY_PQ_INIT:
+            if (signature->digest_verify_pq_init != NULL)
+                break;
+            signature->digest_verify_pq_init
+                = OSSL_FUNC_signature_digest_verify_pq_init(fns);
+            digverifypqfncnt++;
+            break;
+        case OSSL_FUNC_SIGNATURE_DIGEST_VERIFY_PQ_FINAL:
+            if (signature->digest_verify_pq_final != NULL)
+                break;
+            signature->digest_verify_pq_final
+                = OSSL_FUNC_signature_digest_verify_pq_final(fns);
+            digverifypqfncnt++;
             break;
         case OSSL_FUNC_SIGNATURE_DIGEST_VERIFY_INIT:
             if (signature->digest_verify_init != NULL)
@@ -245,7 +259,9 @@ static void *evp_signature_from_algorithm(int name_id,
         || (gparamfncnt != 0 && gparamfncnt != 2)
         || (sparamfncnt != 0 && sparamfncnt != 2)
         || (gmdparamfncnt != 0 && gmdparamfncnt != 2)
-        || (smdparamfncnt != 0 && smdparamfncnt != 2)) {
+        || (smdparamfncnt != 0 && smdparamfncnt != 2)
+        || (digverifypqfncnt == 2 && signature->digest_verify_update == NULL)
+        || (digverifypqfncnt != 0 && digverifypqfncnt != 2)) {
         /*
          * In order to be a consistent set of functions we must have at least
          * a set of context functions (newctx and freectx) as well as a set of

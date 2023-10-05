@@ -709,6 +709,8 @@ OSSL_CORE_MAKE_FUNC(const OSSL_PARAM *, keyexch_gettable_ctx_params,
 # define OSSL_FUNC_SIGNATURE_GETTABLE_CTX_MD_PARAMS 23
 # define OSSL_FUNC_SIGNATURE_SET_CTX_MD_PARAMS      24
 # define OSSL_FUNC_SIGNATURE_SETTABLE_CTX_MD_PARAMS 25
+# define OSSL_FUNC_SIGNATURE_DIGEST_VERIFY_PQ_INIT  26
+# define OSSL_FUNC_SIGNATURE_DIGEST_VERIFY_PQ_FINAL 27
 
 OSSL_CORE_MAKE_FUNC(void *, signature_newctx, (void *provctx,
                                                   const char *propq))
@@ -741,6 +743,12 @@ OSSL_CORE_MAKE_FUNC(int, signature_digest_sign_final,
 OSSL_CORE_MAKE_FUNC(int, signature_digest_sign,
                     (void *ctx, unsigned char *sigret, size_t *siglen,
                      size_t sigsize, const unsigned char *tbs, size_t tbslen))
+OSSL_CORE_MAKE_FUNC(int, signature_digest_verify_pq_init,
+                    (void *ctx, const char *mdname, void *provkey,
+                     const OSSL_PARAM params[],
+                     const unsigned char *sig, size_t siglen))
+OSSL_CORE_MAKE_FUNC(int, signature_digest_verify_pq_final,
+                    (void *ctx))
 OSSL_CORE_MAKE_FUNC(int, signature_digest_verify_init,
                     (void *ctx, const char *mdname, void *provkey,
                      const OSSL_PARAM params[]))
