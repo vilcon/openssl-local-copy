@@ -107,9 +107,9 @@ const OPTIONS smime_options[] = {
 
     OPT_SECTION("Certificate chain"),
     {"certfile", OPT_CERTFILE, '<',
-     "Other certificates to include when signing or to use when verifying;"},
+     "Extra signer and intermediate CA certificates to include when signing"},
     {OPT_MORE_STR, 0, 0,
-     "may be used for chain building and as signer cerificates"},
+     "or to use as preferred signer certificates when verifying"},
     {"CApath", OPT_CAPATH, '/', "Trusted certificates directory"},
     {"CAfile", OPT_CAFILE, '<', "Trusted certificates file"},
     {"CAstore", OPT_CASTORE, ':', "Trusted certificates store URI"},
@@ -494,7 +494,7 @@ int smime_main(int argc, char **argv)
     }
 
     if (certfile != NULL) {
-        if (!load_certs(certfile, 0, &other, NULL, "other certificates")) {
+        if (!load_certs(certfile, 0, &other, NULL, "extra certificates")) {
             ERR_print_errors(bio_err);
             goto end;
         }

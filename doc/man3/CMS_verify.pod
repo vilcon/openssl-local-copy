@@ -25,7 +25,7 @@ CMS_verify() is very similar to L<PKCS7_verify(3)>. It verifies a
 B<CMS SignedData> structure contained in a structure of type B<CMS_ContentInfo>.
 I<cms> points to the B<CMS_ContentInfo> structure to verify.
 The optional I<certs> parameter can provide a list of certificates,
-which is searched first for the signer's certificate.
+which is searched first for signer certificates.
 I<cms> may contain extra untrusted CA certificates that may be used for
 chain building as well as CRLs that may be used for certificate validation.
 I<store> may be NULL or point to
