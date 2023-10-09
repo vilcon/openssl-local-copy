@@ -420,8 +420,9 @@ int OCSP_request_verify(OCSP_REQUEST *req, const STACK_OF(X509) *certs,
 }
 
 static int ocsp_req_find_signer(X509 **psigner, OCSP_REQUEST *req,
-                                const X509_NAME *nm, const
-                                STACK_OF(X509) *certs, unsigned long flags)
+                                const X509_NAME *nm,
+                                const STACK_OF(X509) *certs,
+                                unsigned long flags)
 {
     X509 *signer;
 
