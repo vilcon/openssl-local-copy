@@ -407,17 +407,16 @@ static int evp_pkey_signature_init(EVP_PKEY_CTX *ctx, int operation,
     evp_pkey_ctx_free_old_ops(ctx);
     ctx->operation = operation;
 
-    ERR_set_mark();
-
-    if (evp_pkey_ctx_is_legacy(ctx))
-        goto legacy;
 
     if (ctx->pkey == NULL) {
-        ERR_clear_last_mark();
         ERR_raise(ERR_LIB_EVP, EVP_R_NO_KEY_SET);
         goto err;
     }
     keynid = ctx->pkey->type;
+
+    ERR_set_mark();
+    if (evp_pkey_ctx_is_legacy(ctx))
+        goto legacy;
 
     /*
      * Try to derive the supported signature from |ctx->keymgmt|.
