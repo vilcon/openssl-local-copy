@@ -812,7 +812,6 @@ static int fix_md(enum state state,
                          get_md_name, get_md_by_name);
 }
 
-
 static int fix_distid_len(enum state state,
                           const struct translation_st *translation,
                           struct translation_ctx_st *ctx)
@@ -1175,30 +1174,6 @@ static int fix_ec_paramgen_curve_nid(enum state state,
 
     return ret;
 }
-
-
-/* EVP_PKEY_CTRL_EC_KDF_UKM */
-static int fix_ukm(enum state state,
-                   const struct translation_st *translation,
-                   struct translation_ctx_st *ctx)
-{
-    int ret = 1;
-
-    if (state == PRE_PARAMS_TO_CTRL && ctx->action_type == SET)
-        /*
-         * setget_params_to_ctrl passes zeroized ctx, so p2 is NULL
-         * so it will be allocated by get_octet_string. The engine
-         * is responsible for releaseing it similar to crypto/ec/ec_pmeth.c
-         */
-        ret = OSSL_PARAM_get_octet_string(ctx->params, &ctx->p2, NULL, &ctx->p1);
-    else if (state == POST_PARAMS_TO_CTRL && ctx->action_type == SET)
-        ret = ctx->p1;
-    else
-        ret = default_fixup_args(state, translation, ctx);
-
-    return ret;
-}
-
 
 /* EVP_PKEY_CTRL_EC_ECDH_COFACTOR */
 static int fix_ecdh_cofactor(enum state state,
@@ -2240,10 +2215,10 @@ static const struct translation_st evp_pkey_ctx_translations[] = {
       OSSL_EXCHANGE_PARAM_KDF_OUTLEN, OSSL_PARAM_UNSIGNED_INTEGER, NULL },
     { SET, EVP_PKEY_EC, 0, EVP_PKEY_OP_DERIVE,
       EVP_PKEY_CTRL_EC_KDF_UKM, NULL, NULL,
-      OSSL_EXCHANGE_PARAM_KDF_UKM, OSSL_PARAM_OCTET_STRING, fix_ukm },
+      OSSL_EXCHANGE_PARAM_KDF_UKM, OSSL_PARAM_OCTET_STRING, NULL },
     { GET, EVP_PKEY_EC, 0, EVP_PKEY_OP_DERIVE,
       EVP_PKEY_CTRL_GET_EC_KDF_UKM, NULL, NULL,
-      OSSL_EXCHANGE_PARAM_KDF_UKM, OSSL_PARAM_OCTET_PTR, fix_ukm },
+      OSSL_EXCHANGE_PARAM_KDF_UKM, OSSL_PARAM_OCTET_PTR, NULL },
 
     /*-
      * SM2
