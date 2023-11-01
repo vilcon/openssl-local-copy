@@ -2845,7 +2845,7 @@ static int evp_pkey_ctx_setget_params_to_ctrl(EVP_PKEY_CTX *pctx,
         fixup_args_fn *fixup = default_fixup_args;
         int ret;
 
-        tmpl.action_type = action_type;
+        tmpl.action_type = ctx.action_type = action_type;
         tmpl.keytype1 = tmpl.keytype2 = keytype;
         tmpl.optype = optype;
         tmpl.param_key = params->key;
@@ -2854,7 +2854,12 @@ static int evp_pkey_ctx_setget_params_to_ctrl(EVP_PKEY_CTX *pctx,
         if (translation != NULL) {
             if (translation->fixup_args != NULL)
                 fixup = translation->fixup_args;
-            ctx.action_type = translation->action_type;
+            /*
+             * If action type passed is NONE, then use the
+             * default from translation
+             */
+            if (ctx.action_type == NONE)
+                ctx.action_type = translation->action_type;
             ctx.ctrl_cmd = translation->ctrl_num;
         }
         ctx.pctx = pctx;
