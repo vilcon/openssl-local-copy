@@ -5537,3 +5537,4 @@ X509_STORE_CTX_set_current_reasons      ?	3_2_0	EXIST::FUNCTION:
 OSSL_STORE_delete                       ?	3_2_0	EXIST::FUNCTION:
 EVP_DigestVerifyPQInit                  ?	3_2_0	EXIST::FUNCTION:
 EVP_DigestVerifyPQFinal                 ?	3_2_0	EXIST::FUNCTION:
+EVP_PKEY_reserve                        ?	3_2_0	EXIST::FUNCTION:
