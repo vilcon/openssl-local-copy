@@ -745,8 +745,13 @@ static size_t dtls_get_max_record_overhead(OSSL_RECORD_LAYER *rl)
     size_t blocksize = 0;
 
     if (rl->enc_ctx != NULL &&
-        (EVP_CIPHER_CTX_get_mode(rl->enc_ctx) == EVP_CIPH_CBC_MODE))
-        blocksize = EVP_CIPHER_CTX_get_block_size(rl->enc_ctx);
+        (EVP_CIPHER_CTX_get_mode(rl->enc_ctx) == EVP_CIPH_CBC_MODE)) {
+        int blksz = EVP_CIPHER_CTX_get_block_size(rl->enc_ctx);
+
+        if (blksz <= 0)
+            return 0;   /* Error */
+        blocksize = blksz;
+    }
 
     /*
      * If we have a cipher in place then the tag is mandatory. If the cipher is
