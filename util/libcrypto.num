@@ -5740,3 +5740,6 @@ EVP_aes_256_cbc_hmac_sha1_etm           ?	3_4_0	EXIST::FUNCTION:
 EVP_aes_128_cbc_hmac_sha256_etm         ?	3_4_0	EXIST::FUNCTION:
 EVP_aes_192_cbc_hmac_sha256_etm         ?	3_4_0	EXIST::FUNCTION:
 EVP_aes_256_cbc_hmac_sha256_etm         ?	3_4_0	EXIST::FUNCTION:
+EVP_aes_128_cbc_hmac_sha512_etm         ?	3_4_0	EXIST::FUNCTION:
+EVP_aes_192_cbc_hmac_sha512_etm         ?	3_4_0	EXIST::FUNCTION:
+EVP_aes_256_cbc_hmac_sha512_etm         ?	3_4_0	EXIST::FUNCTION:
