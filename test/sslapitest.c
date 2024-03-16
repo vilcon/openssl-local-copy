@@ -39,6 +39,7 @@
 #include "testutil.h"
 #include "testutil/output.h"
 #include "internal/nelem.h"
+#include "internal/tlsgroups.h"
 #include "internal/ktls.h"
 #include "../ssl/ssl_local.h"
 #include "../ssl/record/methods/recmethod_local.h"
@@ -3147,6 +3148,7 @@ static const sigalgs_list testsigalgs[] = {
     {validlist3, OSSL_NELEM(validlist3), NULL, 1, 0},
 # endif
     {NULL, 0, "RSA+SHA256", 1, 1},
+    {NULL, 0, "RSA+SHA256:?Invalid", 1, 1},
 # ifndef OPENSSL_NO_EC
     {NULL, 0, "RSA+SHA256:ECDSA+SHA512", 1, 1},
     {NULL, 0, "ECDSA+SHA512", 1, 0},
@@ -3389,7 +3391,7 @@ static int ed_gen_cb(SSL *s, void *arg)
         return 1;
     artificial_ticket_time--;
 
-    if (SSL_SESSION_set_time(sess, SSL_SESSION_get_time(sess) - 10) == 0)
+    if (SSL_SESSION_set_time_ex(sess, SSL_SESSION_get_time_ex(sess) - 10) == 0)
         return 0;
 
     return 1;
@@ -3492,8 +3494,8 @@ static int setupearly_data_test(SSL_CTX **cctx, SSL_CTX **sctx, SSL **clientssl,
      * gave it on the server side
      */
     if (artificial
-            && !TEST_long_gt(SSL_SESSION_set_time(*sess,
-                                                  SSL_SESSION_get_time(*sess) - 10), 0))
+            && !TEST_time_t_gt(SSL_SESSION_set_time_ex(*sess,
+                                     SSL_SESSION_get_time_ex(*sess) - 10), 0))
         return 0;
 
     if (!TEST_true(create_ssl_objects(*sctx, *cctx, serverssl,
@@ -9486,6 +9488,64 @@ static int test_servername(int tst)
     return testresult;
 }
 
+static int test_unknown_sigalgs_groups(void)
+{
+    int ret = 0;
+    SSL_CTX *ctx = NULL;
+
+    if (!TEST_ptr(ctx = SSL_CTX_new_ex(libctx, NULL, TLS_server_method())))
+        goto end;
+
+    if (!TEST_int_gt(SSL_CTX_set1_sigalgs_list(ctx,
+                                               "RSA+SHA256:?nonexistent:?RSA+SHA512"),
+                                               0))
+        goto end;
+    if (!TEST_size_t_eq(ctx->cert->conf_sigalgslen, 2)
+        || !TEST_int_eq(ctx->cert->conf_sigalgs[0], TLSEXT_SIGALG_rsa_pkcs1_sha256)
+        || !TEST_int_eq(ctx->cert->conf_sigalgs[1], TLSEXT_SIGALG_rsa_pkcs1_sha512))
+        goto end;
+
+    if (!TEST_int_gt(SSL_CTX_set1_client_sigalgs_list(ctx,
+                                                      "RSA+SHA256:?nonexistent:?RSA+SHA512"),
+                                                      0))
+        goto end;
+    if (!TEST_size_t_eq(ctx->cert->client_sigalgslen, 2)
+        || !TEST_int_eq(ctx->cert->client_sigalgs[0], TLSEXT_SIGALG_rsa_pkcs1_sha256)
+        || !TEST_int_eq(ctx->cert->client_sigalgs[1], TLSEXT_SIGALG_rsa_pkcs1_sha512))
+        goto end;
+
+    if (!TEST_int_le(SSL_CTX_set1_groups_list(ctx,
+                                              "nonexistent"),
+                                              0))
+        goto end;
+
+    if (!TEST_int_le(SSL_CTX_set1_groups_list(ctx,
+                                              "?nonexistent1:?nonexistent2:?nonexistent3"),
+                                              0))
+        goto end;
+
+#ifndef OPENSSL_NO_EC
+    if (!TEST_int_le(SSL_CTX_set1_groups_list(ctx,
+                                              "P-256:nonexistent"),
+                                              0))
+        goto end;
+
+    if (!TEST_int_gt(SSL_CTX_set1_groups_list(ctx,
+                                              "P-384:?nonexistent:?P-521"),
+                                              0))
+        goto end;
+    if (!TEST_size_t_eq(ctx->ext.supportedgroups_len, 2)
+        || !TEST_int_eq(ctx->ext.supportedgroups[0], OSSL_TLS_GROUP_ID_secp384r1)
+        || !TEST_int_eq(ctx->ext.supportedgroups[1], OSSL_TLS_GROUP_ID_secp521r1))
+        goto end;
+#endif
+
+    ret = 1;
+ end:
+    SSL_CTX_free(ctx);
+    return ret;
+}
+
 #if !defined(OPENSSL_NO_EC) \
     && (!defined(OSSL_NO_USABLE_TLS1_3) || !defined(OPENSSL_NO_TLS1_2))
 /*
@@ -9652,19 +9712,10 @@ static int test_pluggable_group(int idx)
     OSSL_PROVIDER *tlsprov = OSSL_PROVIDER_load(libctx, "tls-provider");
     /* Check that we are not impacted by a provider without any groups */
     OSSL_PROVIDER *legacyprov = OSSL_PROVIDER_load(libctx, "legacy");
-    const char *group_name = idx == 0 ? "xorgroup" : "xorkemgroup";
+    const char *group_name = idx == 0 ? "xorkemgroup" : "xorgroup";
 
     if (!TEST_ptr(tlsprov))
         goto end;
-
-    if (legacyprov == NULL) {
-        /*
-         * In this case we assume we've been built with "no-legacy" and skip
-         * this test (there is no OPENSSL_NO_LEGACY)
-         */
-        testresult = 1;
-        goto end;
-    }
 
     if (!TEST_true(create_ssl_ctx_pair(libctx, TLS_server_method(),
                                        TLS_client_method(),
@@ -9675,7 +9726,9 @@ static int test_pluggable_group(int idx)
                                              NULL, NULL)))
         goto end;
 
-    if (!TEST_true(SSL_set1_groups_list(serverssl, group_name))
+    /* ensure GROUPLIST_INCREMENT (=40) logic triggers: */
+    if (!TEST_true(SSL_set1_groups_list(serverssl, "xorgroup:xorkemgroup:dummy1:dummy2:dummy3:dummy4:dummy5:dummy6:dummy7:dummy8:dummy9:dummy10:dummy11:dummy12:dummy13:dummy14:dummy15:dummy16:dummy17:dummy18:dummy19:dummy20:dummy21:dummy22:dummy23:dummy24:dummy25:dummy26:dummy27:dummy28:dummy29:dummy30:dummy31:dummy32:dummy33:dummy34:dummy35:dummy36:dummy37:dummy38:dummy39:dummy40:dummy41:dummy42:dummy43"))
+    /* removing a single algorithm from the list makes the test pass */
             || !TEST_true(SSL_set1_groups_list(clientssl, group_name)))
         goto end;
 
@@ -11732,6 +11785,7 @@ int setup_tests(void)
     ADD_ALL_TESTS(test_multiblock_write, OSSL_NELEM(multiblock_cipherlist_data));
 #endif
     ADD_ALL_TESTS(test_servername, 10);
+    ADD_TEST(test_unknown_sigalgs_groups);
 #if !defined(OPENSSL_NO_EC) \
     && (!defined(OSSL_NO_USABLE_TLS1_3) || !defined(OPENSSL_NO_TLS1_2))
     ADD_ALL_TESTS(test_sigalgs_available, 6);

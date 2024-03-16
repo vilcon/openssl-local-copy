@@ -1917,7 +1917,7 @@ int SSL_has_pending(const SSL *s)
         TLS_RECORD *rdata;
         pitem *item, *iter;
 
-        iter = pqueue_iterator(sc->rlayer.d->buffered_app_data.q);
+        iter = pqueue_iterator(sc->rlayer.d->buffered_app_data);
         while ((item = pqueue_next(&iter)) != NULL) {
             rdata = item->data;
             if (rdata->length > 0)
@@ -2906,9 +2906,6 @@ long ossl_ctrl_internal(SSL *s, int cmd, long larg, void *parg, int no_quic)
     long l;
     SSL_CONNECTION *sc = SSL_CONNECTION_FROM_SSL(s);
 
-    if (sc == NULL)
-        return 0;
-
     /*
      * Routing of ctrl calls for QUIC is a little counterintuitive:
      *
@@ -2926,6 +2923,9 @@ long ossl_ctrl_internal(SSL *s, int cmd, long larg, void *parg, int no_quic)
      */
     if (!no_quic && IS_QUIC(s))
         return s->method->ssl_ctrl(s, cmd, larg, parg);
+
+    if (sc == NULL)
+        return 0;
 
     switch (cmd) {
     case SSL_CTRL_GET_READ_AHEAD:
@@ -3766,9 +3766,10 @@ int SSL_export_keying_material(SSL *s, unsigned char *out, size_t olen,
         || (sc->version < TLS1_VERSION && sc->version != DTLS1_BAD_VER))
         return -1;
 
-    return s->method->ssl3_enc->export_keying_material(sc, out, olen, label,
-                                                       llen, context,
-                                                       contextlen, use_context);
+    return sc->ssl.method->ssl3_enc->export_keying_material(sc, out, olen, label,
+                                                            llen, context,
+                                                            contextlen,
+                                                            use_context);
 }
 
 int SSL_export_keying_material_early(SSL *s, unsigned char *out, size_t olen,
