@@ -186,6 +186,7 @@ foreach (sort keys %stlibname) {
     }
 }
 my @duplicates = sort grep { $symbols{$_} > 1 } keys %symbols;
+@duplicates = grep {($_ ne "EVP_CIPHER_CTX_dup") && ($_ ne "EVP_MD_CTX_dup")} @duplicates;
 if (@duplicates) {
     note "Duplicates:";
     note join('\n', @duplicates);
@@ -206,6 +207,9 @@ unless (disabled('shared')) {
 
         my @sh_symbols = ( @{$shsymbols{$_}} );
         my @def_symbols = ( @{$defsymbols{$_}} );
+
+        my %tmp = map {$_ => 1} @def_symbols;
+        @def_symbols = sort keys %tmp;
 
         while (scalar @sh_symbols || scalar @def_symbols) {
             my $sh_first = $sh_symbols[0];
