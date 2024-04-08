@@ -5434,8 +5434,8 @@ BN_are_coprime                          5561	3_1_0	EXIST::FUNCTION:
 X509_PUBKEY_set0_public_key             5562	3_2_0	EXIST::FUNCTION:
 OSSL_STACK_OF_X509_free                 5563	3_2_0	EXIST::FUNCTION:
 OSSL_trace_string                       5564	3_2_0	EXIST::FUNCTION:
-EVP_MD_CTX_dup                          5565	3_2_0	EXIST::FUNCTION:
-EVP_CIPHER_CTX_dup                      5566	3_2_0	EXIST::FUNCTION:
+EVP_MD_CTX_dup                          5565	3_2_0	NOEXIST::FUNCTION:
+EVP_CIPHER_CTX_dup                      5566	3_2_0	NOEXIST::FUNCTION:
 BN_signed_bin2bn                        5567	3_2_0	EXIST::FUNCTION:
 BN_signed_bn2bin                        5568	3_2_0	EXIST::FUNCTION:
 BN_signed_lebin2bn                      5569	3_2_0	EXIST::FUNCTION:
@@ -5548,3 +5548,5 @@ X509_STORE_get1_objects                 ?	3_3_0	EXIST::FUNCTION:
 OPENSSL_LH_set_thunks                   ?	3_3_0	EXIST::FUNCTION:
 OPENSSL_LH_doall_arg_thunk              ?	3_3_0	EXIST::FUNCTION:
 OSSL_HTTP_REQ_CTX_set_max_response_hdr_lines ?	3_3_0	EXIST::FUNCTION:HTTP
+EVP_MD_CTX_dup                          ?	3_1_0	EXIST::FUNCTION:
+EVP_CIPHER_CTX_dup                      ?	3_1_0	EXIST::FUNCTION:
