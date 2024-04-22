@@ -719,6 +719,11 @@ int tls13_change_cipher_state(SSL_CONNECTION *s, int which)
                ? OSSL_RECORD_PROTECTION_LEVEL_HANDSHAKE
                : OSSL_RECORD_PROTECTION_LEVEL_APPLICATION);
 
+    if (SSL_CONNECTION_IS_DTLS(s) && !dtls1_increment_epoch(s, which)) {
+        SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
+        goto err;
+    }
+
     if (!ssl_set_new_record_layer(s, s->version,
                                   direction,
                                   level, secret, hashlen, key, keylen, iv,
@@ -753,6 +758,7 @@ int tls13_update_key(SSL_CONNECTION *s, int sending)
     int ret = 0, l;
     int direction = sending ? OSSL_RECORD_DIRECTION_WRITE
                             : OSSL_RECORD_DIRECTION_READ;
+    const int which = sending ? SSL3_CC_WRITE : SSL3_CC_READ;
     unsigned char iv[EVP_MAX_IV_LENGTH];
 
     if ((l = EVP_MD_get_size(md)) <= 0) {
@@ -776,6 +782,11 @@ int tls13_update_key(SSL_CONNECTION *s, int sending)
     }
 
     memcpy(insecret, secret, hashlen);
+
+    if (SSL_CONNECTION_IS_DTLS(s) && !dtls1_increment_epoch(s, which)) {
+        SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
+        goto err;
+    }
 
     if (!ssl_set_new_record_layer(s, s->version,
                             direction,
