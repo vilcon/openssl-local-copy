@@ -106,7 +106,9 @@ jobs:
             # RV64GC
             arch: riscv64-linux-gnu,
             libs: libc6-dev-riscv64-cross,
-            target: linux64-riscv64
+            target: linux64-riscv64,
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc"
           }, {
             # RV64GC with bitmanip and scalar crypto extensions
             arch: riscv64-linux-gnu,
