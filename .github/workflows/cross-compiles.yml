@@ -118,6 +118,14 @@ jobs:
             opensslcapsname: riscvcap, # OPENSSL_riscvcap
             opensslcaps: "rv64gc_zba_zbb_zbc_zbs_zbkb_zbkc_zbkx_zbknd_zkne_zknh_zksed_zksh_zkr"
           }, {
+            # RV64GC with all currently OpenSSL-supported extensions
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,zba=true,zbb=true,zbc=true,zbs=true,zbkb=true,zbkc=true,zbkx=true,zknd=true,zkne=true,zknh=true,zksed=true,zksh=true,zkr=true,zkt=true,v=true,vlen=128,zvbb=true,zvbc=true,zvkb=true,zvkg=true,zvkned=true,zvknha=true,zvknhb=true,zvksed=true,zvksh=true",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_zba_zbb_zbc_zbs_zbkb_zbkc_zbkx_zbknd_zkne_zknh_zksed_zksh_zkr_zkt_v_zvbb_zvbc_zvkb_zvkg_zvkned_zvknha_zvknhb_zvksed_zvksh"
+          }, {
             arch: s390x-linux-gnu,
             libs: libc6-dev-s390x-cross,
             target: linux64-s390x -Wno-stringop-overflow
