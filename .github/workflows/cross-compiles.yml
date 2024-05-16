@@ -132,7 +132,10 @@ jobs:
             arch: riscv64-linux-gnu,
             libs: libc6-dev-riscv64-cross,
             target: linux64-riscv64,
-            qemucpu: "rv64,v=true,vlen=128,zvkg=true,zvbb=false,zvkb=false",
+            # do not use zvkb flag for qemucpu
+            # see https://lists.nongnu.org/archive/html/qemu-devel/2024-05/msg02231.html
+            # Should be zvkg=true,zvbb=false,zvkb=false
+            qemucpu: "rv64,v=true,vlen=128,zvkg=true,zvbb=false",
             opensslcapsname: riscvcap, # OPENSSL_riscvcap
             opensslcaps: "rv64gc_v_zvkg"
           }, {
@@ -141,7 +144,10 @@ jobs:
             arch: riscv64-linux-gnu,
             libs: libc6-dev-riscv64-cross,
             target: linux64-riscv64,
-            qemucpu: "rv64,v=true,vlen=128,zvkb=true,zvbc=true,zvkg=false",
+            # do not use zvkb flag for qemucpu
+            # see https://lists.nongnu.org/archive/html/qemu-devel/2024-05/msg02231.html
+            # Should be zvkb=true,zvbc=true,zvkg=false
+            qemucpu: "rv64,v=true,vlen=128,zvbb=true,zvbc=true,zvkg=false",
             opensslcapsname: riscvcap, # OPENSSL_riscvcap
             opensslcaps: "rv64gc_v_zvkb_zvbc"
           }, {
