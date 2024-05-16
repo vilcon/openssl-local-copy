@@ -118,6 +118,62 @@ jobs:
             opensslcapsname: riscvcap, # OPENSSL_riscvcap
             opensslcaps: "rv64gc_zba_zbb_zbc_zbs_zbkb_zbkc_zbkx_zbknd_zkne_zknh_zksed_zksh_zkr"
           }, {
+            # RV64GCV ZBB, but without ZVKB
+            # For chacha20 vector-only path from #24069
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,v=true,vlen=128,zbb=true,zvbb=false,zvkb=false",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_v_zbb"
+          }, {
+            # RV64GCV ZVKG, but without ZVKB
+            # For crypto/modes/gcm128.c
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,v=true,vlen=128,zvkg=true,zvbb=false,zvkb=false",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_v_zvkg"
+          }, {
+            # RV64GCV ZVKB ZVBC, but without ZVKG
+            # For crypto/modes/gcm128.c
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,v=true,vlen=128,zvkb=true,zvbc=true,zvkg=false",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_v_zvkb_zvbc"
+          }, {
+            # RV64GC ZBC ZBB, but without ZBKB
+            # For crypto/modes/gcm128.c
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,zbc=true,zbb=true,zbkb=false",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_zbc_zbb"
+          }, {
+            # RV64GC ZBC, but without ZBB/ZBKB
+            # For crypto/modes/gcm128.c
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,zbc=true,zbb=false,zbkb=false",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_zbc"
+          }, {
+            # RV64GCV ZVKNED, but without ZVBB/ZVKB/ZVKG
+            # For providers/implementations/ciphers/cipher_aes_xts_hw.c
+            # For providers/implementations/ciphers/cipher_aes_hw_rv64i.inc
+            # For providers/implementations/ciphers/cipher_aes_gcm_hw_rv64i.inc
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux64-riscv64,
+            qemucpu: "rv64,v=true,vlen=128,zvkned=true,zvbb=false,zvkb=false,zvkg=false",
+            opensslcapsname: riscvcap, # OPENSSL_riscvcap
+            opensslcaps: "rv64gc_v_zvkned"
+          }, {
             # RV64GC with all currently OpenSSL-supported extensions
             arch: riscv64-linux-gnu,
             libs: libc6-dev-riscv64-cross,
