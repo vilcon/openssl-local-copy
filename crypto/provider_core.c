@@ -175,6 +175,7 @@ struct ossl_provider_st {
     OSSL_FUNC_provider_get_params_fn *get_params;
     OSSL_FUNC_provider_get_capabilities_fn *get_capabilities;
     OSSL_FUNC_provider_self_test_fn *self_test;
+    OSSL_FUNC_provider_random_fn *random;
     OSSL_FUNC_provider_query_operation_fn *query_operation;
     OSSL_FUNC_provider_unquery_operation_fn *unquery_operation;
 
@@ -993,6 +994,9 @@ static int provider_init(OSSL_PROVIDER *prov)
                 prov->self_test =
                     OSSL_FUNC_provider_self_test(provider_dispatch);
                 break;
+            case OSSL_FUNC_PROVIDER_RANDOM:
+                prov->random = OSSL_FUNC_provider_random(provider_dispatch);
+                break;
             case OSSL_FUNC_PROVIDER_GET_CAPABILITIES:
                 prov->get_capabilities =
                     OSSL_FUNC_provider_get_capabilities(provider_dispatch);
@@ -1645,6 +1649,13 @@ int ossl_provider_self_test(const OSSL_PROVIDER *prov)
     if (ret == 0)
         (void)provider_remove_store_methods((OSSL_PROVIDER *)prov);
     return ret;
+}
+
+int ossl_provider_random(const OSSL_PROVIDER *prov, int which, void *buf, size_t n,
+                         unsigned int strength)
+{
+    return prov->random == NULL ? 0 : prov->random(prov->provctx, which, buf, n,
+                                                   strength);
 }
 
 int ossl_provider_get_capabilities(const OSSL_PROVIDER *prov,
