@@ -1094,6 +1094,12 @@ static int provider_deactivate(OSSL_PROVIDER *prov, int upcalls,
     if (!ossl_assert(prov != NULL))
         return -1;
 
+#ifndef FIPS_MODULE
+    if (prov->random != NULL
+            && !ossl_rand_check_random_provider_unload(prov->libctx, prov))
+        return -1;
+#endif
+
     /*
      * No need to lock if we've got no store because we've not been shared with
      * other threads.
@@ -1183,6 +1189,10 @@ static int provider_activate(OSSL_PROVIDER *prov, int lock, int upcalls)
     }
 
 #ifndef FIPS_MODULE
+    if (prov->random != NULL
+            && !ossl_rand_check_random_provider_load(prov->libctx, prov))
+        return -1;
+
     if (prov->ischild && upcalls && !ossl_provider_up_ref_parent(prov, 1))
         return -1;
 #endif
