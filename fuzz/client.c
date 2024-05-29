@@ -59,6 +59,23 @@ int FuzzerTestOneInput(const uint8_t *buf, size_t len)
     BIO *in;
     BIO *out;
     SSL_CTX *ctx;
+#if !defined(OPENSSL_NO_ECH) && !defined(OPENSSL_NO_EC) && !defined(OPENSSL_NO_ECX)
+/*
+ * This ECHConfigList has 6 entries wit ,
+ * [13,10,9,13,10,13] - since our runtime no longer supports
+ * version 9 or 10, we should see 3 configs loaded.
+ */
+static const char echconfig[] =
+    "AXn+DQA6xQAgACBm54KSIPXu+pQq2oY183wt3ybx7CKbBYX0ogPq5u6FegAEAAE"
+    "AAQALZXhhbXBsZS5jb20AAP4KADzSACAAIIP+0Qt0WGBF3H5fz8HuhVRTCEMuHS"
+    "4Khu6ibR/6qER4AAQAAQABAAAAC2V4YW1wbGUuY29tAAD+CQA7AAtleGFtcGxlL"
+    "mNvbQAgoyQr+cP8mh42znOp1bjPxpLCBi4A0ftttr8MPXRJPBcAIAAEAAEAAQAA"
+    "AAD+DQA6QwAgACB3xsNUtSgipiYpUkW6OSrrg03I4zIENMFa0JR2+Mm1WwAEAAE"
+    "AAQALZXhhbXBsZS5jb20AAP4KADwDACAAIH0BoAdiJCX88gv8nYpGVX5BpGBa9y"
+    "T0Pac3Kwx6i8URAAQAAQABAAAAC2V4YW1wbGUuY29tAAD+DQA6QwAgACDcZIAx7"
+    "OcOiQuk90VV7/DO4lFQr5I3Zw9tVbK8MGw1dgAEAAEAAQALZXhhbXBsZS5jb20A"
+    "AA==";
+#endif
 
     if (len == 0)
         return 0;
@@ -74,6 +91,10 @@ int FuzzerTestOneInput(const uint8_t *buf, size_t len)
     OPENSSL_assert(SSL_set_min_proto_version(client, 0) == 1);
     OPENSSL_assert(SSL_set_cipher_list(client, "ALL:eNULL:@SECLEVEL=0") == 1);
     SSL_set_tlsext_host_name(client, "localhost");
+#if !defined(OPENSSL_NO_ECH) && !defined(OPENSSL_NO_EC) && !defined(OPENSSL_NO_ECX)
+    OPENSSL_assert(SSL_ech_set1_echconfig(client, (unsigned char *)echconfig,
+                                          strlen(echconfig)) == 1);
+#endif
     in = BIO_new(BIO_s_mem());
     if (in == NULL)
         goto end;
