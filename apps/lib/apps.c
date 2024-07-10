@@ -1120,7 +1120,7 @@ int load_key_certs_crls(const char *uri, int format, int maybe_stdin,
     if (failed != NULL && !quiet) {
         unsigned long err = ERR_peek_last_error();
 
-        /* continee the error message with the type of credential affected */
+        /* continue the error message with the type of credential affected */
         if (desc != NULL && strstr(desc, failed) != NULL) {
             BIO_printf(bio_err, " %s", desc);
         } else {
