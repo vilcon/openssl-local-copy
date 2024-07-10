@@ -952,7 +952,8 @@ int load_key_certs_crls(const char *uri, int format, int maybe_stdin,
                        uri != NULL ? uri : "<stdin>");
         return 0;
     }
-    ERR_set_mark(); /* suppress (most) low-level errors during loading */
+    /* suppress any extraneous errors left over from failed parse attempts */
+    ERR_set_mark();
 
     SET_EXPECT1(ppkey, OSSL_STORE_INFO_PKEY);
     SET_EXPECT1(ppubkey, OSSL_STORE_INFO_PUBKEY);
