@@ -29,6 +29,12 @@ OpenSSL 3.4
 
 ### Changes between 3.3 and 3.4 [xx XXX xxxx]
 
+ * Changed DTLS handling of record with invalid MAC.
+   Records with invalid MAC used to generate fatal alert, and are now
+   silently dropped.
+
+   *Omer Kattan*
+
  * XOF Digest API changes.
 
    EVP_MD_CTX_get_size() and EVP_MD_CTX_size are macros that were aliased to
