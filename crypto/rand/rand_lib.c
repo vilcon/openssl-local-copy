@@ -22,7 +22,6 @@
 #include "rand_local.h"
 #include "crypto/context.h"
 
-
 #ifndef OPENSSL_DEFAULT_SEED_SRC
 # define OPENSSL_DEFAULT_SEED_SRC "SEED-SRC"
 #endif
@@ -1011,7 +1010,7 @@ static int random_conf_init(CONF_IMODULE *md, const CONF *cnf)
             if (!random_set_string(&dgbl->seed_propq, cval->value))
                 return 0;
         } else if (OPENSSL_strcasecmp(cval->name, "random_provider") == 0) {
-#ifndef FIPS_MODULE
+# ifndef FIPS_MODULE
             if (OSSL_PROVIDER_available(libctx, cval->value)) {
                 OSSL_PROVIDER *prov = OSSL_PROVIDER_load(libctx, cval->value);
 
@@ -1026,7 +1025,7 @@ static int random_conf_init(CONF_IMODULE *md, const CONF *cnf)
                 if (!set_random_provider_name(dgbl, cval->value))
                     return 0;
             }
-#endif
+# endif
         } else {
             ERR_raise_data(ERR_LIB_CRYPTO,
                            CRYPTO_R_UNKNOWN_NAME_IN_RANDOM_SECTION,
