@@ -306,8 +306,16 @@ int pkeyutl_main(int argc, char **argv)
 
     pkey = get_pkey(kdfalg, inkey, keyform, key_type, passinarg, pkey_op, e);
     if (pkey_op == EVP_PKEY_OP_SIGN || pkey_op == EVP_PKEY_OP_VERIFY) {
-        if (only_rawin(pkey))
-            rawin = 1; /* implied for Ed25519 and Ed448 */
+        if (only_rawin(pkey)) {
+            if ((EVP_PKEY_is_a(pkey, "ED25519") || EVP_PKEY_is_a(pkey, "ED448"))
+                && digestname != NULL) {
+                BIO_printf(bio_err,
+                           "%s: -digest (prehash) is not supported with EdDSA\n", prog);
+                EVP_PKEY_free(pkey);
+                goto end;
+            }
+            rawin = 1; /* implied for Ed25519(ph) and Ed448(ph) and maybe others in the future */
+        }
     } else if (rawin) {
         BIO_printf(bio_err,
                    "%s: -rawin can only be used with -sign or -verify\n", prog);
