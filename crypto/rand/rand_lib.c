@@ -773,6 +773,9 @@ EVP_RAND_CTX *RAND_get0_public(OSSL_LIB_CTX *ctx)
         if (primary == NULL)
             return NULL;
 
+        if (dgbl->chain == 0)
+            return primary;
+
         ctx = ossl_lib_ctx_get_concrete(ctx);
         /*
          * If the private is also NULL then this is the first time we've
@@ -805,6 +808,9 @@ EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx)
         primary = RAND_get0_primary(ctx);
         if (primary == NULL)
             return NULL;
+
+        if (dgbl->chain == 0)
+            return primary;
 
         ctx = ossl_lib_ctx_get_concrete(ctx);
         /*
