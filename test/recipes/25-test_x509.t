@@ -16,7 +16,7 @@ use OpenSSL::Test qw/:DEFAULT srctop_file/;
 
 setup("test_x509");
 
-plan tests => 95;
+plan tests => 98;
 
 # Prevent MSys2 filename munging for arguments that look like file paths but
 # aren't
@@ -293,6 +293,17 @@ cert_contains($battcons_cert,
 cert_contains($battcons_cert,
               "pathlen:3",
               1, 'X.509 Basic Attribute Constraints Path Length');
+
+my $auth_att_id_cert = srctop_file(@certs, "ext-authorityAttributeIdentifier.pem");
+cert_contains($auth_att_id_cert,
+              "DirName:CN = Wildboar",
+              1, 'X.509 Authority Attribute Identifier');
+cert_contains($auth_att_id_cert,
+              "Issuer Serial: 01030507",
+              1, 'X.509 Authority Attribute Identifier');
+cert_contains($auth_att_id_cert,
+              "Issuer UID: B2",
+              1, 'X.509 Authority Attribute Identifier');
 
 sub test_errors { # actually tests diagnostics of OSSL_STORE
     my ($expected, $cert, @opts) = @_;
