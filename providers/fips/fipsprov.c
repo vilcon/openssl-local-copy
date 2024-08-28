@@ -29,6 +29,12 @@
 #include "crypto/context.h"
 #include "internal/core.h"
 
+#ifdef OPENSSL_NO_FIPS_PEDANTICONLY
+# define FIPS_PEDANTIC_DEFAULT 0
+#else
+# define FIPS_PEDANTIC_DEFAULT 1
+#endif
+
 static const char FIPS_DEFAULT_PROPERTIES[] = "provider=fips,fips=yes";
 static const char FIPS_UNAPPROVED_PROPERTIES[] = "provider=fips,fips=no";
 
@@ -129,32 +135,32 @@ void *ossl_fips_prov_ossl_ctx_new(OSSL_LIB_CTX *libctx)
     if (fgbl == NULL)
         return NULL;
     init_fips_option(&fgbl->fips_security_checks, 1);
-    init_fips_option(&fgbl->fips_tls1_prf_ems_check, 0); /* Disabled by default */
+    init_fips_option(&fgbl->fips_tls1_prf_ems_check, FIPS_PEDANTIC_DEFAULT);
     init_fips_option(&fgbl->fips_no_short_mac, 1);
-    init_fips_option(&fgbl->fips_hmac_key_check, 0);
-    init_fips_option(&fgbl->fips_kmac_key_check, 0);
-    init_fips_option(&fgbl->fips_restricted_drgb_digests, 0);
-    init_fips_option(&fgbl->fips_signature_digest_check, 0);
-    init_fips_option(&fgbl->fips_hkdf_digest_check, 0);
-    init_fips_option(&fgbl->fips_tls13_kdf_digest_check, 0);
-    init_fips_option(&fgbl->fips_tls1_prf_digest_check, 0);
-    init_fips_option(&fgbl->fips_sshkdf_digest_check, 0);
-    init_fips_option(&fgbl->fips_sskdf_digest_check, 0);
-    init_fips_option(&fgbl->fips_x963kdf_digest_check, 0);
-    init_fips_option(&fgbl->fips_dsa_sign_disallowed, 0);
-    init_fips_option(&fgbl->fips_tdes_encrypt_disallowed, 0);
-    init_fips_option(&fgbl->fips_rsa_pkcs15_padding_disabled, 0);
-    init_fips_option(&fgbl->fips_rsa_pss_saltlen_check, 0);
-    init_fips_option(&fgbl->fips_rsa_sign_x931_disallowed, 0);
-    init_fips_option(&fgbl->fips_hkdf_key_check, 0);
-    init_fips_option(&fgbl->fips_kbkdf_key_check, 0);
-    init_fips_option(&fgbl->fips_tls13_kdf_key_check, 0);
-    init_fips_option(&fgbl->fips_tls1_prf_key_check, 0);
-    init_fips_option(&fgbl->fips_sshkdf_key_check, 0);
-    init_fips_option(&fgbl->fips_sskdf_key_check, 0);
-    init_fips_option(&fgbl->fips_x963kdf_key_check, 0);
+    init_fips_option(&fgbl->fips_hmac_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_kmac_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_restricted_drgb_digests, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_signature_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_hkdf_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_tls13_kdf_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_tls1_prf_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_sshkdf_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_sskdf_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_x963kdf_digest_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_dsa_sign_disallowed, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_tdes_encrypt_disallowed, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_rsa_pkcs15_padding_disabled, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_rsa_pss_saltlen_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_rsa_sign_x931_disallowed, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_hkdf_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_kbkdf_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_tls13_kdf_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_tls1_prf_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_sshkdf_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_sskdf_key_check, FIPS_PEDANTIC_DEFAULT);
+    init_fips_option(&fgbl->fips_x963kdf_key_check, FIPS_PEDANTIC_DEFAULT);
     init_fips_option(&fgbl->fips_pbkdf2_lower_bound_check, 1);
-    init_fips_option(&fgbl->fips_ecdh_cofactor_check, 0);
+    init_fips_option(&fgbl->fips_ecdh_cofactor_check, FIPS_PEDANTIC_DEFAULT);
     return fgbl;
 }
 
@@ -239,6 +245,7 @@ static int fips_get_params_from_core(FIPS_GLOBAL *fgbl)
                            conditional_error_check);
 #undef FIPS_FEATURE_SELF_TEST
 
+#ifdef OPENSSL_NO_FIPS_PEDANTICONLY
 /* FIPS features can be enabled or disabled independently */
 #define FIPS_FEATURE_OPTION(fgbl, pname, field)                         \
     *p++ = OSSL_PARAM_construct_utf8_ptr(                               \
@@ -300,6 +307,7 @@ static int fips_get_params_from_core(FIPS_GLOBAL *fgbl)
     FIPS_FEATURE_OPTION(fgbl, OSSL_PROV_FIPS_PARAM_ECDH_COFACTOR_CHECK,
                         fips_ecdh_cofactor_check);
 #undef FIPS_FEATURE_OPTION
+#endif
 
     *p = OSSL_PARAM_construct_end();
 
