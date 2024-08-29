@@ -365,6 +365,46 @@ static int dtls_retrieve_rlayer_buffered_record(OSSL_RECORD_LAYER *rl,
     return 0;
 }
 
+/* rfc9147 section 4.2.3 */
+int dtls_crypt_sequence_number(unsigned char *seq, size_t seq_len,
+                               EVP_CIPHER_CTX *ctx, unsigned char *rec_data)
+{
+    unsigned char mask[16];
+    int outlen, inlen;
+    unsigned char *iv, *in;
+    const char *name = EVP_CIPHER_get0_name(EVP_CIPHER_CTX_get0_cipher(ctx));
+    size_t i;
+
+    memset(mask, 0, sizeof(mask));
+
+    if (OPENSSL_strncasecmp(name, "aes", 3) == 0) {
+        iv = NULL;
+        in = rec_data;
+        inlen = 16;
+    } else if (OPENSSL_strncasecmp(name, "chacha", 6) == 0) {
+        iv = rec_data;
+        in = rec_data + 4;
+        inlen = 12;
+    } else {
+        if (ossl_assert(OPENSSL_strncasecmp(name, "null", 4) == 0))
+            return 1;
+        else
+            return 0;
+    }
+
+    if (!ossl_assert(inlen >= 0)
+            || (size_t)inlen > sizeof(mask)
+            || seq_len > sizeof(mask)
+            || EVP_CipherInit_ex(ctx, NULL, NULL, NULL, iv, 1) <= 0
+            || EVP_CipherUpdate(ctx, mask, &outlen, in, inlen) <= 0)
+        return 0;
+
+    for (i = 0; i < seq_len; i++)
+        seq[i] ^= mask[i];
+
+    return 1;
+}
+
 /*-
  * Call this to get a new input record.
  * It will return <= 0 if more data is needed, normally due to an error
@@ -516,6 +556,23 @@ int dtls_get_more_records(OSSL_RECORD_LAYER *rl)
     /* set state for later operations */
     rl->rstate = SSL_ST_READ_HEADER;
 
+    /*
+     * rfc9147:
+     * This procedure requires the ciphertext length to be at least 16 bytes.
+     * Receivers MUST reject shorter records as if they had failed deprotection
+     * TODO(DTLSv1.3): This check will need to be modified when support for variable
+     * length headers is added.
+     */
+    if (rl->sn_enc_ctx != NULL
+            && (rl->packet_length >= DTLS1_RT_HEADER_LENGTH + 16)
+            && !dtls_crypt_sequence_number(&(rl->sequence[2]), 6, rl->sn_enc_ctx,
+                                           rl->packet + DTLS1_RT_HEADER_LENGTH)) {
+        /* sequence number encryption failed dump record */
+        rr->length = 0;
+        rl->packet_length = 0;
+        goto again;
+    }
+
     /* match epochs.  NULL means the packet is dropped on the floor */
     bitmap = dtls_get_bitmap(rl, rr, &is_next_epoch);
     if (bitmap == NULL) {
@@ -628,8 +685,10 @@ static int
 dtls_new_record_layer(OSSL_LIB_CTX *libctx, const char *propq, int vers,
                       int role, int direction, int level, uint16_t epoch,
                       unsigned char *secret, size_t secretlen,
-                      unsigned char *key, size_t keylen, unsigned char *iv,
-                      size_t ivlen, unsigned char *mackey, size_t mackeylen,
+                      unsigned char *snkey, unsigned char *key, size_t keylen,
+                      unsigned char *iv, size_t ivlen,
+                      unsigned char *mackey, size_t mackeylen,
+                      const EVP_CIPHER *snciph,
                       const EVP_CIPHER *ciph, size_t taglen,
                       int mactype,
                       const EVP_MD *md, COMP_METHOD *comp,
@@ -683,9 +742,10 @@ dtls_new_record_layer(OSSL_LIB_CTX *libctx, const char *propq, int vers,
         goto err;
     }
 
-    ret = (*retrl)->funcs->set_crypto_state(*retrl, level, key, keylen, iv,
-                                            ivlen, mackey, mackeylen, ciph,
-                                            taglen, mactype, md, comp);
+    ret = (*retrl)->funcs->set_crypto_state(*retrl, level, snkey, key, keylen,
+                                            iv, ivlen, mackey, mackeylen,
+                                            snciph, ciph, taglen, mactype, md,
+                                            comp);
 
  err:
     if (ret != OSSL_RECORD_RETURN_SUCCESS) {
